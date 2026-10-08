@@ -494,7 +494,7 @@ function tourSteps() {
       element: ".project-row-main",
       popover: {
         title: "Toggle a corridor",
-        description: "Tap a row to show or hide that corridor. Each one gets its own colour, matching its boundary and trees on the map.",
+        description: "Tap a row to show or hide that corridor on the map.",
       },
     },
     {
