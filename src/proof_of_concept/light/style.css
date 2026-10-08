@@ -47,6 +47,46 @@ html, body {
   overflow: hidden;
 }
 
+/* On a phone, a left-anchored column that spans top-to-bottom leaves almost
+   no map visible. Pin it to the bottom instead, capped to under half the
+   viewport height, so the map stays the main thing on screen and the panel
+   reads as a bottom sheet. */
+@media (max-width: 640px) {
+  #panel {
+    top: auto;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    width: auto;
+    max-width: none;
+    max-height: 52vh;
+    border-radius: 14px;
+  }
+
+  .project-switch {
+    width: 38px;
+    height: 22px;
+  }
+
+  .project-switch::after {
+    width: 18px;
+    height: 18px;
+  }
+
+  .project-switch.on::after {
+    transform: translateX(16px);
+  }
+
+  .buffer-row {
+    padding: 3px 0;
+  }
+
+  .buffer-row input[type="checkbox"] {
+    transform: scale(1.3);
+    transform-origin: left center;
+  }
+}
+
 #panel-header {
   padding: 18px 18px 14px;
   flex-shrink: 0;
@@ -104,6 +144,7 @@ html, body {
 #project-list {
   flex: 1;
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 4px 18px;
 }
 
