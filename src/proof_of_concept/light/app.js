@@ -112,14 +112,21 @@ const projectListEl = document.getElementById("project-list");
 const grandTotalFigureEl = document.getElementById("grand-total-figure");
 const grandTotalLabelEl = document.getElementById("grand-total-label");
 
-// Every tree, boundary, and buffer ring for a project renders in that
-// project's own shade of green - one colour per corridor, nothing coded by
-// risk band anymore.
+// Trees get their own shade of green per corridor. The boundary/buffer
+// outline is a *different* colour per corridor, deliberately not green -
+// green on the parchment basemap's sage land cover just disappears, so the
+// polygon needs a colour that actually pops against parchment/sage/rust.
 const PROJECT_COLORS = {
   "yeshwantpur-kr-puram": "#2E7D4F",
   "old-madras-road-to-silk-board": "#7C9A3C",
 };
 const FALLBACK_COLORS = ["#3F8F6B", "#4A6B3A", "#5FA089", "#2F6B52"];
+
+const PROJECT_LINE_COLORS = {
+  "yeshwantpur-kr-puram": "#2C5F8A",
+  "old-madras-road-to-silk-board": "#6B4C8A",
+};
+const FALLBACK_LINE_COLORS = ["#2C5F8A", "#6B4C8A", "#8A4C5F", "#4C6B8A"];
 
 const BUFFERS_M = [5, 10, 15];
 
@@ -129,6 +136,10 @@ const projects = {}; // slug -> state
 
 function colorFor(slug, index) {
   return PROJECT_COLORS[slug] || FALLBACK_COLORS[index % FALLBACK_COLORS.length];
+}
+
+function lineColorFor(slug, index) {
+  return PROJECT_LINE_COLORS[slug] || FALLBACK_LINE_COLORS[index % FALLBACK_LINE_COLORS.length];
 }
 
 function statusLabel(status) {
@@ -249,6 +260,7 @@ function setProjectVisibility(slug, visible) {
 function buildProjectRow(manifestEntry, index) {
   const slug = manifestEntry.slug;
   const color = colorFor(slug, index);
+  const lineColor = lineColorFor(slug, index);
   const cumulative = manifestEntry.cumulative_counts_by_buffer_m;
   const hasAnyTrees = cumulative[15] > 0;
 
@@ -289,6 +301,7 @@ function buildProjectRow(manifestEntry, index) {
 
   projects[slug] = {
     color,
+    lineColor,
     visible: true,
     loaded: false,
     baseTreeCount: manifestEntry.total_trees_in_boundary,
@@ -364,7 +377,7 @@ function extendBoundsWithGeoJSON(bounds, fc) {
 
 function loadProjectLayers(manifestEntry) {
   const slug = manifestEntry.slug;
-  const project = { name: manifestEntry.name, color: projects[slug].color };
+  const project = { name: manifestEntry.name, color: projects[slug].color, lineColor: projects[slug].lineColor };
   const base = `data/${slug}/`;
 
   return Promise.all([
@@ -381,14 +394,14 @@ function loadProjectLayers(manifestEntry) {
       id: `boundary-fill-${slug}`,
       type: "fill",
       source: `boundary-${slug}`,
-      paint: { "fill-color": project.color, "fill-opacity": 0.07 },
+      paint: { "fill-color": project.lineColor, "fill-opacity": 0.07 },
       layout: { visibility: vis },
     });
     map.addLayer({
       id: `boundary-line-${slug}`,
       type: "line",
       source: `boundary-${slug}`,
-      paint: { "line-color": project.color, "line-width": 2 },
+      paint: { "line-color": project.lineColor, "line-width": 2 },
       layout: { visibility: vis },
     });
 
@@ -404,7 +417,7 @@ function loadProjectLayers(manifestEntry) {
         type: "line",
         source: `buffers-${slug}`,
         filter: ["==", ["get", "buffer_m"], d],
-        paint: { "line-color": project.color, "line-width": 1.5, "line-dasharray": [2, 1.5] },
+        paint: { "line-color": project.lineColor, "line-width": 1.5, "line-dasharray": [2, 1.5] },
         layout: { visibility: "none" },
       });
 
