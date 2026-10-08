@@ -273,7 +273,7 @@ function buildProjectRow(manifestEntry, index) {
           (d) => `
           <label class="buffer-row">
             <input type="checkbox" id="buffer-${slug}-${d}" />
-            <span class="buffer-swatch" style="background:${color}"></span>
+            <span class="buffer-swatch" style="background:${lineColor}"></span>
             +${d}m margin
             <span class="buffer-row-count" id="buffer-${slug}-${d}-count">${cumulative[d].toLocaleString()} total</span>
           </label>`
@@ -283,7 +283,7 @@ function buildProjectRow(manifestEntry, index) {
 
   row.innerHTML = `
     <div class="project-row-main" id="row-main-${slug}" tabindex="0" role="switch" aria-checked="true" aria-label="Show ${manifestEntry.name} on the map">
-      <span class="project-color-bar" style="background:${color}"></span>
+      <span class="project-color-bar" style="background:${lineColor}"></span>
       <div class="project-row-info">
         <div class="project-name">${manifestEntry.name}</div>
         <div class="project-meta"><a href="${manifestEntry.source_url}" target="_blank" rel="noopener">View alignment on OpenCity</a></div>
