@@ -169,10 +169,25 @@ html, body {
   line-height: 1.3;
 }
 
-#project-list {
+/* The scrollable region: project rows AND the explanatory notes below them,
+   together. Those notes used to be separate flex-shrink:0 siblings after
+   #project-list - fixed, non-scrolling chrome competing for the same capped
+   panel height. On mobile (52vh cap) three paragraphs of notes could eat
+   nearly the whole budget, squeezing the actual project list to a sliver.
+   Folding everything into one scrollable area means the notes just become
+   more content to scroll past, instead of permanently-reserved space. */
+#scroll-area {
   flex: 1;
+  /* A flex child's automatic min-height defaults to its content size, which
+     defeats overflow-y: auto - it just keeps growing (or gets visually
+     collapsed/clipped by the panel's own max-height) instead of scrolling
+     within the space actually available to it. */
+  min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+}
+
+#project-list {
   padding: 4px 18px;
 }
 

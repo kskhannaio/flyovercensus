@@ -30,23 +30,25 @@
     <span id="grand-total-label">trees across visible corridors</span>
   </div>
 
-  <div id="project-list"><p class="loading-row">Loading corridors…</p></div>
+  <div id="scroll-area">
+    <div id="project-list"><p class="loading-row">Loading corridors…</p></div>
 
-  <p class="note">
-    Each tree is coloured by which corridor it belongs to — the same shade as the bar beside that corridor above. Opening a +5/10/15m band changes which trees are shown, not their colour.
-  </p>
+    <p class="note">
+      Each tree is coloured by which corridor it belongs to — the same shade as the bar beside that corridor above. Opening a +5/10/15m band changes which trees are shown, not their colour.
+    </p>
 
-  <p class="note">
-    Buffers expand each published boundary outward by 5/10/15m as an
-    approximation of a wider construction margin, not a separately surveyed
-    alignment. Bands are cumulative — opening +15m already includes
-    everything in the boundary and +5/+10m, so the per-project total is
-    always just the widest band open for that corridor.
-  </p>
-  <p class="note">
-    Marked trees fall inside a published or buffered boundary — this is a
-    GIS estimate, not a confirmed or official felling list.
-  </p>
+    <p class="note">
+      Buffers expand each published boundary outward by 5/10/15m as an
+      approximation of a wider construction margin, not a separately surveyed
+      alignment. Bands are cumulative — opening +15m already includes
+      everything in the boundary and +5/+10m, so the per-project total is
+      always just the widest band open for that corridor.
+    </p>
+    <p class="note">
+      Marked trees fall inside a published or buffered boundary — this is a
+      GIS estimate, not a confirmed or official felling list.
+    </p>
+  </div>
 </div>
 
 <script type="module" src="app.js"></script>
