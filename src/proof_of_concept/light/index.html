@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bengaluru Elevated Corridors — Tree Impact</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@6.13.0/dist/maplibre-gl.css" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="map"></div>
+
+<div id="panel">
+  <header id="panel-header">
+    <p class="kicker">BBMP tree census &times; OpenCity DPRs</p>
+    <h1>Elevated corridors, counted in trees</h1>
+    <p class="subtitle">Every upcoming flyover alignment on OpenCity, spatially joined against the Jul 2026 tree census.</p>
+  </header>
+
+  <div id="grand-total">
+    <span id="grand-total-figure">—</span>
+    <span id="grand-total-label">trees across visible corridors</span>
+  </div>
+
+  <div id="project-list"><p class="loading-row">Loading corridors…</p></div>
+
+  <p class="note">
+    Each tree is coloured by which corridor it belongs to — the same shade as the bar beside that corridor above. Opening a +5/10/15m band changes which trees are shown, not their colour.
+  </p>
+
+  <p class="note">
+    Buffers expand each published boundary outward by 5/10/15m as an
+    approximation of a wider construction margin, not a separately surveyed
+    alignment. Bands are cumulative — opening +15m already includes
+    everything in the boundary and +5/+10m, so the per-project total is
+    always just the widest band open for that corridor.
+  </p>
+  <p class="note">
+    Marked trees fall inside a published or buffered boundary — this is a
+    GIS estimate, not a confirmed or official felling list.
+  </p>
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

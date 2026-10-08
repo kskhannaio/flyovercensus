@@ -1,0 +1,26 @@
+[
+  {
+    "slug": "yeshwantpur-kr-puram",
+    "name": "Yeshwantpur\u2013KR Puram Elevated Corridor",
+    "source_url": "https://data.opencity.in/dataset/elevated-corridor-from-yeshwantpur-to-kr-puram",
+    "total_trees_in_boundary": 547,
+    "cumulative_counts_by_buffer_m": {
+      "0": 547,
+      "5": 738,
+      "10": 905,
+      "15": 1119
+    }
+  },
+  {
+    "slug": "old-madras-road-to-silk-board",
+    "name": "Old Madras Road to Central Silk Board Elevated Corridor",
+    "source_url": "https://data.opencity.in/dataset/elevated-corridor-from-old-madras-road-to-central-silk-board-documents",
+    "total_trees_in_boundary": 524,
+    "cumulative_counts_by_buffer_m": {
+      "0": 524,
+      "5": 750,
+      "10": 1006,
+      "15": 1139
+    }
+  }
+]

@@ -1,0 +1,9 @@
+# Raw downloaded source data (census exports, KML/KMZ, canopy height raster,
+# flyover DPRs/alignments) - large (1GB+) and re-downloadable from OpenCity/
+# Meta, not meant to live in the repo. The small derived GeoJSON the web app
+# actually serves lives under src/ and is tracked normally.
+/data/
+
+.venv/
+__pycache__/
+*.pyc

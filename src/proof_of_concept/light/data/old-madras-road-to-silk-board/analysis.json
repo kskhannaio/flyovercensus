@@ -1,0 +1,251 @@
+{
+  "project_name": "Old Madras Road to Central Silk Board Elevated Corridor",
+  "source_url": "https://data.opencity.in/dataset/elevated-corridor-from-old-madras-road-to-central-silk-board-documents",
+  "polygon_source": "Old Madras Road to Central Silk Board Elevated Corridor",
+  "census_source": "bbmp_tree_census_july_2026.geojson",
+  "total_trees_in_boundary": 524,
+  "cumulative_counts_by_buffer_m": {
+    "0": 524,
+    "5": 750,
+    "10": 1006,
+    "15": 1139
+  },
+  "species_counts": [
+    [
+      "Markhamia Lutea (Benth.) K.Schum",
+      51
+    ],
+    [
+      "Livistona Chinensis (Jacq.) R. Br. Ex Mart.",
+      45
+    ],
+    [
+      "Swietenia Mahagoni (L.) Jacq.",
+      41
+    ],
+    [
+      "Saraca Asoca (Roxb.) De Wilde",
+      38
+    ],
+    [
+      "Terminalia Catappa L",
+      37
+    ],
+    [
+      "Delonix Regia (Bojer Ex Hook.) Raf.",
+      35
+    ],
+    [
+      "Tabebuia Rosea (Bertol) Dc.",
+      29
+    ],
+    [
+      "Grevillea Robusta Cunn. Ex R. Br.",
+      23
+    ],
+    [
+      "Samanea Saman (Jacq.) Merr.",
+      21
+    ],
+    [
+      "Pongamia Pinnata (L.) Pierre",
+      18
+    ],
+    [
+      "Syzygium Cumini (L.) Skeels",
+      17
+    ],
+    [
+      "Ficus Benjamina L.",
+      17
+    ],
+    [
+      "Muntingia Calabura L.",
+      12
+    ],
+    [
+      "Millingtonia Hortensis L.F",
+      12
+    ],
+    [
+      "Others",
+      11
+    ],
+    [
+      "Peltophorum Pterocarpum (Dc.) Back. Ex K. Heyne",
+      10
+    ],
+    [
+      "Mangifera Indica L.",
+      8
+    ],
+    [
+      "Ficus Religiosa L.",
+      8
+    ],
+    [
+      "Ptychosperma Macarthuri Nichols",
+      7
+    ],
+    [
+      "Averrhoa Carambola L.",
+      7
+    ],
+    [
+      "Ficus Racemosa L.",
+      5
+    ],
+    [
+      "Spathodea Campanulata P. Beauv",
+      5
+    ],
+    [
+      "Artocarpus Heterophyllus Lam.",
+      5
+    ],
+    [
+      "Azadirachta Indica A. Juss.",
+      5
+    ],
+    [
+      "Phyllanthus Acidus (L.) Skeels",
+      4
+    ],
+    [
+      "Jacaranda Acutifolia Humb. & Bonp",
+      4
+    ],
+    [
+      "Leucaena Latisiliqua (L.) Gillis",
+      4
+    ],
+    [
+      "Michelia Champaca L",
+      3
+    ],
+    [
+      "Manilkara Zapota (L.) P. Royen",
+      3
+    ],
+    [
+      "Ficus Benghalensis L.",
+      3
+    ],
+    [
+      "Thespesia Populnea",
+      3
+    ],
+    [
+      "Plumaria alba",
+      2
+    ],
+    [
+      "Lagerstroemia Speciosa (L.) Pers",
+      2
+    ],
+    [
+      "Michelia Longifolia Blume",
+      2
+    ],
+    [
+      "Pritchardia Pacifica Seem. & H. Wendl.",
+      2
+    ],
+    [
+      "Cocos Nucifera L.",
+      2
+    ],
+    [
+      "Simarouba Glauca Dc.",
+      2
+    ],
+    [
+      "Roystonea Regia (H.B.K) O. F. Cook",
+      2
+    ],
+    [
+      "Plumeria Rubra L. Forma Tricolor",
+      2
+    ],
+    [
+      "Acacia Leucophloea (Roxb.) Wild",
+      1
+    ],
+    [
+      "Annona Squamosa L",
+      1
+    ],
+    [
+      "Thespesia Populnea (L.) Sol. Ex Corr. Serr",
+      1
+    ],
+    [
+      "Mimusops Elengi L.",
+      1
+    ],
+    [
+      "Techoma Stans",
+      1
+    ],
+    [
+      "Eucalyptus Tereticornis Sm.",
+      1
+    ],
+    [
+      "Polyalthia Longifolia (Sonn.) Thwaites",
+      1
+    ],
+    [
+      "Neolomarckia",
+      1
+    ],
+    [
+      "Gliricidia Sepium",
+      1
+    ],
+    [
+      "Pterospermum Acerifolium (L.) Wild",
+      1
+    ],
+    [
+      "Bauhinia Racemosa Lam",
+      1
+    ],
+    [
+      "Bauhinia Forficata",
+      1
+    ],
+    [
+      "Dalbergia Sissoo Roxb.",
+      1
+    ],
+    [
+      "Artocarpus Altitilis (Park.) Fosb.",
+      1
+    ],
+    [
+      "Eugenia Uniflora L",
+      1
+    ],
+    [
+      "Ailanthus Triphysa (Dennst.) Alston",
+      1
+    ],
+    [
+      "Acacia Auriculiformis Cunn. Ex Benth",
+      1
+    ]
+  ],
+  "ward_counts": {
+    "176": 2,
+    "172": 208,
+    "112": 34,
+    "88": 45,
+    "80": 186,
+    "58": 48,
+    "79": 1
+  },
+  "status_counts": {
+    "1": 524
+  }
+}

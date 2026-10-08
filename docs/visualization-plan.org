@@ -1,0 +1,243 @@
+#+TITLE: Bengaluru Tree Census — OpenStreetMap Visualization Plan
+#+AUTHOR: karan@khanna.io
+#+DATE: 2026-09-22
+#+STARTUP: overview
+
+* Source
+
+https://data.opencity.in/dataset/bengaluru-tree-census-data (BBMP / Greater
+Bengaluru Authority tree census, published via OpenCity). All 18 resources on
+the page were downloaded into =data/=:
+
+- =data/kml_zones/= — 14 zone-wise KML files (7 zones × Nov 2024 and Jan 2025
+  snapshots): South, West, RR Nagar, East, Yelahanka, Mahadevapura,
+  Bommanahalli.
+- =data/kmz_citywide/= — 2 citywide KMZ snapshots: April 2025 (~5.92 lakh
+  trees) and July 2025 (~6.835 lakh trees).
+- =data/zip_citywide/= — 2 citywide ZIP files containing GeoJSON: January 2026
+  and July 2026 (~7.02 lakh trees, the most recent/complete snapshot). The
+  July 2026 GeoJSON has been extracted alongside its zip for inspection.
+
+Total downloaded: ~688 MB.
+
+* Data confirmation — what fields actually exist
+
+Requested fields were: GIS location, species, height, age, girth.
+Inspected the schema of a KML zone file, a KMZ citywide file, and the
+GeoJSON — *all three formats share the exact same schema*:
+
+| Field          | Present? | Notes                                              |
+|----------------+----------+-----------------------------------------------------|
+| Coordinates    | Yes      | Point geometry, lon/lat (WGS84), 0 missing in July 2026 |
+| Species        | Yes      | =TreeName=, Latin/botanical name (e.g. "Mangifera Indica L.") |
+| Height         | *No*     | Not present in any file/format                     |
+| Girth/diameter | *No*     | Not present in any file/format                     |
+| Age            | *No*     | Not present in any file/format                     |
+| Ward           | Yes      | =WardNumber= (BBMP ward, 144 distinct in July 2026) |
+| Tree ID        | Yes      | =KGISTreeID= (KGIS geocode-based unique ID)         |
+| Status         | Yes      | =Status= (1/0/null — likely alive/removed/unverified, undocumented) |
+| Other IDs      | Yes      | =OBJECTID=, =DepartmentCode=, =KGISCode=, =KGISVillageID= |
+
+*Conclusion:* this dataset gives solid **GIS location + species** coverage,
+but *no height, girth, or age* — those attributes are simply not collected in
+any of the published exports (checked KML, KMZ, and GeoJSON alike). Two
+adjacent OpenCity datasets were also checked in case they held the richer
+fields:
+- "Geotagged Trees in Bengaluru Data" → a single PDF (serial number +
+  botanical name only, one small lake locality).
+- "Bengaluru Trees" → a handful of small unrelated CSVs/KML (metro-felling
+  lists, BBMP plantation records 2016-17, BDA plantation PDF).
+
+Neither carries height/girth/age either. If that data is ever needed, it
+would have to come from BBMP's own GBA tree-census backend/app (not
+published in bulk here). *Update:* a usable height proxy was found and
+downloaded separately — see the next section — so the visualization plan
+further down now includes an optional height layer even though the census
+itself has none.
+
+* Supplementary height source — Meta/WRI Canopy Height Maps
+
+https://ai.meta.com/ai-for-good/datasets/canopy-height-maps/ — since the
+census has no height field, this is a candidate to backfill an *estimated*
+per-tree height via spatial join (raster lookup at each tree's lat/lon).
+Confirmed against the actual S3 buckets (not just the marketing page, which
+renders via JS and exposes nothing to a plain fetch):
+
+- Public, unsigned-access AWS Open Data buckets, both covering Bangalore:
+  - *v1* — =s3://dataforgood-fb-data/forests/v1/alsgedi_global_v6_float/=,
+    global 1 m-resolution canopy height from Maxar imagery (2009-2020, 80%
+    from 2018-2020), MAE ~2.8 m. Bangalore is fully covered by *one* tile:
+    =chm/123303312.tif= (476 MB, EPSG:3857, uint8 meters, tile bounds
+    lon 77.34-78.05 / lat 12.55-13.24 — a superset of all of BBMP).
+  - *v2* (=dataforgood-fb-forestsv2=, newer DINOv3-based model on Vantor
+    imagery) — same area split across 4 finer tiles (~825 MB combined):
+    =1233033121/122/123/120.tif=.
+  - Tile grid for either version is published as a single =tiles.geojson=
+    per bucket (v1: 15 MB / 56,145 tiles; v2: 59 MB / 213,109 tiles) —
+    filter it by bbox to find which tile(s) cover any area of interest.
+  - Files are plain-strip GeoTIFFs (not internally tiled/COG), so remote
+    reads via GDAL's =/vsicurl/= only save bandwidth on the row (latitude)
+    axis, not columns — still enough to crop out just Bangalore without
+    pulling the whole planet-scale file.
+- *Downloaded*: cropped the v1 tile to the Bangalore bbox (lon 77.40-77.85,
+  lat 12.80-13.20, a small buffer around the tree census extent) via a
+  windowed remote read (no full 476 MB download needed) →
+  =data/canopy_height/bengaluru_canopy_height_v1_2009-2020.tif= (136 MB,
+  41943×38263 px @ ~1.19 m/px, EPSG:3857, uint8 height-in-meters, observed
+  range 0-88 m).
+- Caveats: this is a *model-predicted* canopy height from satellite imagery
+  circa 2009-2020 (not measured per-tree, no species/age/girth attached, and
+  imagery is up to ~16 years older than the 2024-2026 census). Treat it as
+  an approximate height *overlay*, not authoritative per-tree data — a point
+  sample also picks up canopy from *neighboring* trees/vegetation, not
+  necessarily the exact census point. v2 (Vantor imagery, newer model) would
+  be a modest accuracy improvement, worth revisiting if precision matters
+  more than setup simplicity.
+
+* Data quality notes
+
+- July 2026 citywide GeoJSON: 702,109 features, 236 distinct species labels,
+  144 wards, bounding box lon 77.460–77.776 / lat 12.849–13.142 (sane for
+  Bengaluru).
+- Species is messy: "Others" is a catch-all covering ~170k trees (24%) with
+  no real species resolved. Top real species: Pongamia Pinnata (133k),
+  Swietenia Mahagoni (36k), Tabebuia Rosea (30k), Saraca Asoca (20k).
+- =Status= distribution: 683,461 = 1, 35 = 0, 18,613 = null — meaning is
+  undocumented on the site; treat as "active/removed/unverified" pending
+  confirmation, don't hard-code an assumption into the UI.
+- The 14 zone KML files (Nov 2024 / Jan 2025) and the 2 KMZ files (Apr/Jul
+  2025) are earlier, smaller snapshots of the same underlying census as it
+  grew (5.92L → 6.835L → 7.02L trees) — they're historical/overlapping, not
+  independent datasets. The July 2026 ZIP is the canonical current dataset.
+
+* Visualization goal
+
+Interactive web map, OpenStreetMap basemap, showing all census trees,
+filterable by species and ward, with a popup per tree (species, ward, tree
+ID, status). Must comfortably handle ~700k points — plain Leaflet markers
+will not scale to that without clustering/tiling.
+
+* Recommended approach: PMTiles + MapLibre GL (static, no backend)
+
+Chosen because the dataset is static (a point-in-time census dump), so a
+fully static, single-file vector tile deployment avoids running/maintaining
+a server, and scales to 700k points comfortably in-browser.
+
+** Phase 0 — Normalize to one canonical GeoJSON
+   - Use =data/zip_citywide/bbmp_tree_census_july_2026.geojson= as the
+     canonical current layer (already GeoJSON, no conversion needed).
+   - [Optional, historical layer] convert the two KMZ + 14 KML files to
+     GeoJSON with =ogr2ogr= for a "history/comparison" toggle later:
+     #+begin_src sh
+     ogr2ogr -f GeoJSON out.geojson in.kml
+     #+end_src
+   - Trim properties to what the UI needs (=TreeName=, =WardNumber=,
+     =KGISTreeID=, =Status=) to shrink payload.
+
+** Phase 1 — Clean + enrich (Python, one-off script)
+   - Load GeoJSON, drop/flag null-coordinate features (none currently, but
+     guard for future snapshots).
+   - Normalize =TreeName= casing/whitespace; keep "Others" as an explicit
+     "Unidentified" category in the UI rather than hiding it.
+   - Derive a per-species count and per-ward count table (for legend +
+     search autocomplete) and write them as small JSON sidecar files.
+   - Map =Status= codes to human labels once confirmed (ask BBMP/OpenCity or
+     mark as "unknown" if undocumented).
+   - *Height join:* for each tree point, sample
+     =data/canopy_height/bengaluru_canopy_height_v1_2009-2020.tif= at that
+     lon/lat (reproject point to EPSG:3857, nearest-pixel read) and attach
+     the result as =EstimatedHeightM=. Do this as a batch raster sample
+     (e.g. =rasterio.sample.sample_gen= over all 702k points in one pass,
+     not per-point file opens) and clearly label it as *estimated* in the
+     output property name and in the UI popup, since it's a 2009-2020
+     satellite model prediction, not a field measurement.
+
+** Phase 2 — Build vector tiles
+   - Use =tippecanoe= to build a single =.pmtiles= archive from the cleaned
+     GeoJSON, clustered/zoom-thinned so low zooms show density and high
+     zooms show individual trees:
+     #+begin_src sh
+     tippecanoe -o trees.pmtiles -zg --drop-densest-as-needed \
+       --extend-zooms-if-still-dropping -l trees cleaned_trees.geojson
+     #+end_src
+   - Output is one file (~tens of MB), servable as a static asset — no tile
+     server process required (use the =pmtiles= JS library to read ranges
+     over plain HTTP).
+
+** Phase 3 — Frontend map
+   - MapLibre GL JS + OSM raster tiles (or a vector OSM style) as the
+     basemap.
+   - Add the PMTiles source as a MapLibre vector layer; style:
+     - circle color by species (categorical, top ~15 species + "Other"
+       bucket) or by ward (for density view) — toggle between the two.
+     - circle radius scales with zoom.
+   - Click/tap popup: species (=TreeName=), ward, tree ID, status, and
+     *estimated* canopy height (labelled clearly as a satellite-model
+     estimate, not a census measurement).
+   - UI controls: species filter (dropdown/search), ward filter, a legend,
+     and a results counter.
+   - Optional: a time-slider/toggle to switch between the historical
+     zone-wise snapshots and the current citywide layer, to see census
+     growth over time.
+
+** Phase 4 — Hosting
+   - Fully static: PMTiles file + HTML/JS/CSS bundle. Can be served from
+     GitHub Pages, Netlify, S3, or just =python3 -m http.server= locally.
+   - No database, no backend server needed for the read-only visualization.
+
+** Phase 5 — Stretch goals
+   - Ward-level choropleth (tree count / density per ward) as an alternate
+     view, using =WardNumber= joined against a BBMP ward boundary GeoJSON
+     (would need to source ward boundaries separately — not included in
+     this dataset).
+   - Species diversity heatmap.
+   - Canopy height raster as a togglable background layer (not just the
+     per-tree join) — render =bengaluru_canopy_height_v1_2009-2020.tif= as
+     a raster/hillshade overlay so users can see canopy density even away
+     from mapped tree points.
+   - Explicit "no girth/age data available; height is a satellite-model
+     estimate, not a census measurement" note in the UI so users don't
+     assume it's missing due to a bug or take the height number as exact.
+
+* Alternative (quicker prototype, smaller scale): Leaflet + marker clustering
+
+If a fast prototype is preferred over the tiling pipeline:
+- Leaflet.js + OSM tile layer + =Leaflet.markercluster= (chunked loading),
+  loading the trimmed GeoJSON directly client-side.
+- Simpler to stand up, but browser memory/parse time for 700k points is
+  noticeably heavier than the PMTiles approach and will not scale as well if
+  more snapshots/fields are added later. Fine for a single-zone subset or an
+  MVP; recommend migrating to the PMTiles approach for the full citywide
+  dataset.
+
+* Suggested repo layout
+
+#+begin_src text
+data/
+  kml_zones/          # raw zone snapshots (Nov 2024, Jan 2025)
+  kmz_citywide/        # raw citywide snapshots (Apr 2025, Jul 2025)
+  zip_citywide/         # raw + extracted citywide GeoJSON (Jan 2026, Jul 2026)
+  canopy_height/         # Bangalore-cropped Meta/WRI canopy height GeoTIFF
+scripts/
+  clean_geojson.py      # Phase 1
+  sample_canopy_height.py # Phase 1 height join
+  build_tiles.sh         # Phase 2 (tippecanoe wrapper)
+web/
+  index.html
+  app.js                 # MapLibre GL setup, filters, popups
+  trees.pmtiles           # Phase 2 output (generated, not hand-written)
+docs/
+  visualization-plan.org  # this file
+#+end_src
+
+* Open questions to confirm before/while building
+- What do =Status= values 0/1/null actually mean? (worth asking OpenCity or
+  BBMP, or inferring from KML styling if the source app color-codes markers.)
+- Is a ward-boundary GeoJSON available anywhere on OpenCity for the
+  choropleth stretch goal?
+- Any interest in ingesting future citywide snapshots automatically (the
+  dataset has been updated roughly every 2-3 months)?
+- Is the v1 canopy height estimate (2009-2020 imagery, MAE ~2.8m) good
+  enough, or is it worth re-cropping from the v2/Vantor bucket (4 tiles,
+  ~825MB) for a newer/more accurate estimate before building the height
+  join?
