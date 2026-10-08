@@ -436,6 +436,7 @@ manifestPromise
     // map/style fetch for this part.
     projectListEl.innerHTML = "";
     manifest.forEach((entry, i) => buildProjectRow(entry, i));
+    maybeAutoStartTour();
 
     return mapReady.then((map) => {
       const whenMapLoaded = map.loaded() ? Promise.resolve() : new Promise((resolve) => map.once("load", resolve));
@@ -454,3 +455,99 @@ manifestPromise
     projectListEl.innerHTML = '<p class="loading-row">Failed to load corridor data.</p>';
     console.error(err);
   });
+
+// --- Guided tour (Driver.js: spotlight one section at a time, dim the rest) -
+
+const TOUR_SEEN_KEY = "flyovercensus_tour_seen_v1";
+
+function tourSteps() {
+  return [
+    {
+      element: "#panel-header",
+      popover: {
+        title: "Flyovers, counted in trees",
+        description:
+          "Every upcoming elevated-corridor project on OpenCity, spatially joined against the BBMP tree census - how many trees sit inside each published boundary.",
+      },
+    },
+    {
+      element: "#grand-total",
+      popover: {
+        title: "A live total",
+        description: "Updates as you show or hide corridors, or widen a buffer band - always exactly what's currently visible on the map.",
+      },
+    },
+    {
+      element: ".project-row-main",
+      popover: {
+        title: "Toggle a corridor",
+        description: "Tap a row to show or hide that corridor. Each one gets its own colour, matching its boundary and trees on the map.",
+      },
+    },
+    {
+      element: ".project-buffers",
+      popover: {
+        title: "Buffer bands",
+        description: "+5/10/15m are cumulative, so only one is ever meaningfully on - opening +10m replaces +5m instead of stacking on top of it.",
+      },
+    },
+    {
+      element: "#map",
+      popover: {
+        title: "Tap a tree",
+        description: "Every tree is coloured by which corridor it belongs to. Tap one for its species, ward, tree ID, and status.",
+      },
+    },
+    {
+      element: "#project-list + .note",
+      popover: {
+        title: "Read it as an estimate",
+        description:
+          "Buffers approximate a wider construction margin, not a surveyed alignment - and marked trees are a GIS estimate, not a confirmed felling list.",
+      },
+    },
+  ].filter((s) => document.querySelector(s.element));
+}
+
+// Loaded lazily, on first actual use - a static top-level import would make
+// the whole module (manifest fetch included) wait on this CDN fetch before
+// running at all, for a feature most page loads never open.
+let driverLibPromise = null;
+function loadDriverLib() {
+  if (!driverLibPromise) {
+    driverLibPromise = import("https://cdn.jsdelivr.net/npm/driver.js@1.9.0/dist/driver.js.mjs").then((m) => m.driver);
+  }
+  return driverLibPromise;
+}
+
+function startTour() {
+  const steps = tourSteps();
+  if (!steps.length) return;
+  loadDriverLib().then((driver) => {
+    driver({
+      showProgress: true,
+      overlayColor: "#2D2114",
+      overlayOpacity: 0.72,
+      stagePadding: 6,
+      stageRadius: 10,
+      nextBtnText: "Next",
+      prevBtnText: "Back",
+      doneBtnText: "Done",
+      onDestroyed: () => {
+        try {
+          localStorage.setItem(TOUR_SEEN_KEY, "1");
+        } catch {
+          // private browsing / storage disabled - fine to just not persist
+        }
+      },
+      steps,
+    }).drive();
+  });
+}
+
+function maybeAutoStartTour() {
+  if (localStorage.getItem(TOUR_SEEN_KEY)) return;
+  startTour();
+}
+
+document.getElementById("tour-trigger").addEventListener("click", startTour);
